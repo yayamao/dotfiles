@@ -13,8 +13,8 @@ if [ -f ~/.bash/bash_environment ]; then
 fi
 
 # Load some useful bash functions.
-if [ -f ~/.bash/bash_function ]; then
-  . ~/.bash/bash_function
+if [ -f ~/.bash/bash_functions ]; then
+  . ~/.bash/bash_functions
 fi
 
 # Load some useful alias definitions.

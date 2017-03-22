@@ -3,18 +3,18 @@
 function copy() {
   local from=$1
   local to=$2
-  echo "Copy file from \"$from\" to \"$to\""
   if [ -f $to ]; then
-    vimdiff $from $to
+    diff $from $to > /dev/null || vimdiff $from $to
   else
+    echo "Copy file from \"$from\" to \"$to\""
     cp $from $to
   fi
 }
 
 function setup_bash() {
-  mkdir ~/.bash
+  [ -d ~/.bash ] || mkdir ~/.bash
   copy $PWD/bash/.bash/bash_environment $HOME/.bash/bash_environment
-  copy $PWD/bash/.bash/bash_function $HOME/.bash/bash_function
+  copy $PWD/bash/.bash/bash_functions $HOME/.bash/bash_functions
   copy $PWD/bash/.bash/bash_aliases $HOME/.bash/bash_aliases
 
   copy $PWD/bash/.bash_profile $HOME/.bash_profile
