@@ -1,0 +1,43 @@
+# ~/.screenrc
+
+# Kill splash screen.
+startup_message off
+
+# Replace C-a with C-t
+#escape ^Tt
+
+# Show original screen when exit from emacs/vi
+altscreen on
+
+# Disable flash screen bell
+vbell off
+
+# Show caption/hardstatus at bottom of screen
+caption splitonly
+backtick 1 0 5 $HOME/.screen/resource_stat.sh
+hardstatus alwayslastline "%{= gk}%-w%{= bk}%n %t%{-}%+w %-= @%H | %1` | %D %Y-%m-%d %c"
+# hardstatus off
+
+# zmodem auto
+deflogin on
+
+# Cache 10000 lines for scroll back
+defscrollback 10000
+
+shelltitle "$ |bash"
+
+# Enable 256 color.
+#term "screen-256color"
+term "xterm-256color"
+
+# Use bright colors for bold.
+attrcolor b ".I"
+
+# Erase background with current bg color
+defbce "on"
+
+# Tell screen how to set colors. AB = background, AF=foreground
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+
+# Enables use of shift-PgUp and shift-PgDn
+termcapinfo xterm|xterms|xs|rxvt ti@:te@

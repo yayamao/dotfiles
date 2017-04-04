@@ -26,6 +26,15 @@ function setup_bash() {
   source $HOME/.bashrc
 }
 
+function setup_screen() {
+  echo "Setting up screen configuration ..."
+
+  mkdir -p $HOME/.screen/
+  copy $PWD/screen/.screen/resource_stat.sh $HOME/.screen/resource_stat.sh
+
+  copy $PWD/screen/.screenrc $HOME/.screenrc
+}
+
 function setup_vim() {
   echo "Setting up Vim configuration ..."
 
@@ -36,7 +45,8 @@ function setup_vim() {
 
   echo "Installing Vundle.Vim ..."
   if [ ! -d $HOME/.vim/bundle/Vundle.vim ]; then
-    git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
+    git clone https://github.com/VundleVim/Vundle.vim.git \
+      $HOME/.vim/bundle/Vundle.vim
   fi
 
   echo "Installing Vim plugins ..."
@@ -44,4 +54,5 @@ function setup_vim() {
 }
 
 setup_bash
+setup_screen
 setup_vim
