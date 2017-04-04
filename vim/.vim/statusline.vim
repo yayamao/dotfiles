@@ -1,42 +1,44 @@
-" Require plugin 'scrooloose/syntastic'.
+"==============================================================================
+" Status Line Settings (Depracated, use plugin vim-airline instead).
+"==============================================================================
 
-"statusline setup
-set statusline+=[%f]  "filename
-set statusline+=%r    "read only flag
-set statusline+=%m    "modified flag
-set statusline+=%h    "help file flag
-set statusline+=[%Y]  "filetype
+set statusline+=%{fugitive#statusline()}  " Require plugin 'fugitive'.
+set statusline+=[%f]  " filename
+set statusline+=%r    " read only flag
+set statusline+=%m    " modified flag
+set statusline+=%h    " help file flag
+set statusline+=[%Y]  " filetype
 
-"set statusline+=%{fugitive#statusline()}
-
-"display errors
-set statusline+=%#error#
-set statusline+=%{&ff!='unix'?'['.&ff.']':''} "if fileformat is not unix
-set statusline+=%{(&fenc!='utf-8'&&&fenc!='')?'['.&fenc.']':''} "if file encoding isnt utf-8
-set statusline+=%*
-
-"display warnning
+" Display warnnings
 set statusline+=%#warningmsg#
-set statusline+=%{&paste?'[paste]':''} "if &paste is set
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%{StatuslineLongLineWarning()}
-set statusline+=%{StatuslineTabWarning()} "if &et is wrong, or we have mixed-indenting
-set statusline+=%{StatuslineTrailingSpaceWarning()} " if has tailling space
+set statusline+=%{&paste?'[paste]':''}  " if &paste is set
+set statusline+=%{&ff!='unix'?'['.&ff.']':''}  " if fileformat is not unix
+set statusline+=%{(&fenc!='utf-8'&&&fenc!='')?'['.&fenc.']':''}  " if file encoding isnt utf-8
 set statusline+=%*
 
-set statusline+=%=      "left/right separator
+" Display errors
+set statusline+=%#error#
+set statusline+=%{SyntasticStatuslineFlag()}  " Require plugin 'syntastic'.
+set statusline+=%{StatuslineTabWarning()}  " if &et is wrong, or we have mixed-indenting
+set statusline+=%{StatuslineTrailingSpaceWarning()}  " if has tailling space
+set statusline+=%{StatuslineLongLineWarning()}  " if has long line.
+set statusline+=%*  " Back to normal highlight
+
+"left/right separator
+set statusline+=%=
+
 set statusline+=%{StatuslineCurrentHighlight()} "current highlight
 set statusline+=[%c,      "cursor column
 set statusline+=\ %l/%L,  "cursor line/total lines
 set statusline+=\ %P]     "percent through file
 
-set laststatus=2 " Set statusline always display
-
-"recalculate the trailing whitespace warning when idle, and after saving
+" Recalculate the warnings when idle, and after saving
+autocmd cursorhold,bufwritepost * unlet! b:statusline_tab_warning
 autocmd cursorhold,bufwritepost * unlet! b:statusline_trailing_space_warning
+autocmd cursorhold,bufwritepost * unlet! b:statusline_long_line_warning
 
-"return '[Trailing space at line: x]' if trailing white space is detected
-"return empty otherwise
+" Returns '[Trailing space at: x]' if trailing white space is detected
+" Returns '' otherwise
 function! StatuslineTrailingSpaceWarning()
   if !exists("b:statusline_trailing_space_warning")
 
@@ -47,7 +49,7 @@ function! StatuslineTrailingSpaceWarning()
 
     let line_number = search('\s\+$', 'nw')
     if line_number != 0
-      let b:statusline_trailing_space_warning = '[Trailing space at line: ' . line_number . ']'
+      let b:statusline_trailing_space_warning = '[Trailing space at: ' . line_number . ']'
     else
       let b:statusline_trailing_space_warning = ''
     endif
@@ -55,7 +57,7 @@ function! StatuslineTrailingSpaceWarning()
   return b:statusline_trailing_space_warning
 endfunction
 
-"return the syntax highlight group under the cursor ''
+" Return the syntax highlight group under the cursor.
 function! StatuslineCurrentHighlight()
   let name = synIDattr(synID(line('.'),col('.'),1),'name')
   if name == ''
@@ -65,12 +67,9 @@ function! StatuslineCurrentHighlight()
   endif
 endfunction
 
-"recalculate the tab warning flag when idle and after writing
-autocmd cursorhold,bufwritepost * unlet! b:statusline_tab_warning
-
-"return '[Expand tab wrong at line: tabs/spaces]' if &et is set wrong
-"return '[Mixed indenting at line: tabs,spaces]' if spaces and tabs are used to indent
-"return an empty string if everything is fine
+" Returns '[Expand tab wrong at: x]' if &et is set wrong
+" Returns '[Mixed indenting at: x,y]' if spaces and tabs are used to indent
+" Returns '' if everything is fine
 function! StatuslineTabWarning()
   if !exists("b:statusline_tab_warning")
     let b:statusline_tab_warning = ''
@@ -85,23 +84,20 @@ function! StatuslineTabWarning()
     let spaces = search('^ \{' . &ts . ',}[^\t]', 'nw')
 
     if tabs != 0 && spaces != 0
-      let b:statusline_tab_warning = '[Mixed indenting at line: ' . tabs . ',' . spaces . ']'
+      let b:statusline_tab_warning = '[Mixed indenting at: ' . tabs . ',' . spaces . ']'
     elseif spaces != 0 && !&et
-      let b:statusline_tab_warning = '[Expand tab wrong at line: ' . spaces . ']'
+      let b:statusline_tab_warning = '[Expand tab wrong at: ' . spaces . ']'
     elseif tabs != 0 && &et
-      let b:statusline_tab_warning = '[Expand tab wrong at line: ' . tabs . ']'
+      let b:statusline_tab_warning = '[Expand tab wrong at: ' . tabs . ']'
     endif
   endif
   return b:statusline_tab_warning
 endfunction
 
-"recalculate the long line warning when idle and after saving
-autocmd cursorhold,bufwritepost * unlet! b:statusline_long_line_warning
-
-"Warning if there are lines longer than &textwidth or 80 (if no &textwidth is set)
+" Warning if there are lines longer than &textwidth or 80 (if &textwidth is not
+" set)
 "
-"return '' if no long lines
-"return [Long line at: x] if line x is too long
+" Returns [Long line at: x] if line x is too long, '' if not long lines.
 function! StatuslineLongLineWarning()
   if !exists("b:statusline_long_line_warning")
     let b:statusline_long_line_warning = ''
@@ -122,7 +118,7 @@ function! StatuslineLongLineWarning()
   return b:statusline_long_line_warning
 endfunction
 
-"return the first long line number in this buffer
+" Return the first long line number in this buffer
 function! s:FirstLongLineNumber()
   let threshold = (&tw ? &tw : 80)
   let tabs = repeat(" ", &ts)

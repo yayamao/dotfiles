@@ -15,27 +15,35 @@ Plugin 'VundleVim/Vundle.vim'  " Required.
 
 " Plugins from github (http://vimawesome.com).
 Plugin 'tpope/vim-fugitive'
-" Plugin 'scrooloose/nerdtree'
-Plugin 'scrooloose/syntastic'
-" Plugin 'tpope/vim-surround'
-" Plugin 'kien/ctrlp.vim'
-" Plugin 'altercation/vim-colors-solarized'
-" Plugin 'bling/vim-airline'
-" Plugin 'vim-airline/vim-airline-themes'
-" Plugin 'majutsushi/tagbar'
-" Plugin 'scrooloose/nerdcommenter'
-" Plugin 'airblade/vim-gitgutter'
-" Plugin 'valloric/youcompleteme'
-" Plugin 'Lokaltog/vim-easymotion'
-" Plugin 'godlygeek/tabular'
-" Plugin 'ervandew/supertab'
+Plugin 'scrooloose/nerdtree'
+Plugin 'vim-syntastic/syntastic'
+Plugin 'tpope/vim-surround'
+Plugin 'kien/ctrlp.vim'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'majutsushi/tagbar'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'airblade/vim-gitgutter'
+Plugin 'valloric/youcompleteme'
+Plugin 'Lokaltog/vim-easymotion'
+Plugin 'godlygeek/tabular'
+Plugin 'ervandew/supertab'
 
 " Plugins from vim-scripts (http://vim-scripts.org/vim/scripts.html).
 Plugin 'L9'        " Required for most plugins from vim-scripts.
 Plugin 'genutils'  " Required for most plugins from vim-scripts.
-" Plugin 'FuzzyFinder'
+Plugin 'FuzzyFinder'
 Plugin 'lookupfile'
 Plugin 'Wombat'
+
+" Plugins from google.
+Plugin 'google/vim-maktaba'
+Plugin 'google/vim-glaive'
+Plugin 'bazelbuild/vim-bazel'
+Plugin 'google/vim-codefmt'
+Plugin 'google/vim-coverage'
+Plugin 'google/vim-selector'
 
 " All of your Plugins must be added before the following line.
 call vundle#end()          " Required.
@@ -46,16 +54,21 @@ filetype plugin indent on  " Required.
 " Plugin settings.
 "==============================================================================
 
+" Plugin 'vim-syntastic/syntastic' seetings:
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" Plugin 'vim-airline/vim-airline' seetings
+let g:airline#extensions#tabline#enabled = 1
+" source ~/.vim/statusline.vim
+
 " Plugin 'lookupfile' seetings:
 " Lookup loaded files (buffers) using |bufname()|.
 nnoremap ,z :LUBufs <CR>
 
-" Plugin 'scrooloose/syntastic' seetings:
-source ~/.vim/statusline.vim
-" Turned off syntax highlighting to mark errors (where possible).
-let g:syntastic_enable_highlighting = 0
-
-" Plugin 'Wombat'
+" Plugin 'Wombat' seetings:
 colorscheme wombat
 
 
@@ -95,10 +108,11 @@ set mouse=a     " Enable mouse usage (all modes).
 
 set nu
 set cursorline
-set ruler       " Always show current position.
-set showmode    " Show current mode down the bottom.
-set autoread    " Auto reload file when modify outside.
+set ruler         " Always show current position.
+set showmode      " Show current mode down the bottom.
+set autoread      " Auto reload file when modify outside.
 set hlsearch
+set laststatus=2  " Always display the status line.
 
 " Display tabs and trailing spaces.
 " set list
@@ -135,8 +149,13 @@ hi ColorColumn ctermbg=red
 nnoremap ,cd :cd %:p:h<CR>:pwd<CR>
 " set autochdir
 
-" use 256 colors in console mode if we think the terminal supports it.
+" Use 256 colors in console mode if we think the terminal supports it.
 set t_Co=256
+
+
+"==============================================================================
+" GUI Settings.
+"==============================================================================
 
 if has('gui_running')
   set guioptions-=m  " Remove menu bar.
@@ -144,15 +163,22 @@ if has('gui_running')
   set guioptions-=r  " Remove right-hand scroll bar.
   set guioptions-=L  " Remove left-hand scroll bar.
   set guioptions-=b  " Remove bottom scroll bar.
-  if has('win32')
-    set guifont=Consolas:h11:cDEFAULT
-    au GUIEnter * simalt ~x  " Fullscreen.
-  else
-    set guifont=Monaco:h12
+
+  " Set font
+  if has('unix')
+    if has('mac')  " OS X
+      set guifont=Monaco:h10
+    else
+      set guifont=Monaco\ 10
+    endif
     set lines=999 columns=999  " Maximize gvim window.
+  elseif has('win32') || has('win64')
+    set guifont=Consolas:h11:cDEFAULT
+    autocmd GUIEnter * simalt ~x  " Fullscreen.
   endif
-  set background=light
+
+  " set background=light
 else
-  set background=dark
+  " set background=dark
 endif
 

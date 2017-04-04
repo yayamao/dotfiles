@@ -22,6 +22,8 @@ function setup_bash() {
   copy $PWD/bash/.bash_profile $HOME/.bash_profile
   copy $PWD/bash/.bashrc $HOME/.bashrc
   copy $PWD/bash/.bash_logout $HOME/.bash_logout
+
+  source $HOME/.bashrc
 }
 
 function setup_vim() {
@@ -29,8 +31,8 @@ function setup_vim() {
 
   mkdir -p $HOME/.vim/
 
-  copy $PWD/vim/.vim/vimrc $HOME/.vim/vimrc
   copy $PWD/vim/.vim/statusline.vim $HOME/.vim/statusline.vim
+  copy $PWD/vim/.vim/vimrc $HOME/.vim/vimrc
 
   echo "Installing Vundle.Vim ..."
   if [ ! -d $HOME/.vim/bundle/Vundle.vim ]; then
@@ -38,7 +40,7 @@ function setup_vim() {
   fi
 
   echo "Installing Vim plugins ..."
-  vim +PluginInstall +qall
+  vim -u NONE +PluginInstall +qall
 }
 
 setup_bash
