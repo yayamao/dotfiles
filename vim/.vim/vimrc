@@ -35,6 +35,8 @@ Plugin 'L9'        " Required for most plugins from vim-scripts.
 Plugin 'genutils'  " Required for most plugins from vim-scripts.
 Plugin 'FuzzyFinder'
 Plugin 'lookupfile'
+Plugin 'winmanager'
+Plugin 'taglist.vim'
 Plugin 'Wombat'
 
 " Plugins from google.
@@ -54,21 +56,21 @@ filetype plugin indent on  " Required.
 " Plugin settings.
 "==============================================================================
 
-" Plugin 'vim-syntastic/syntastic' seetings:
+" Plugin 'vim-syntastic/syntastic' settings:
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
-" Plugin 'vim-airline/vim-airline' seetings
+" Plugin 'vim-airline/vim-airline' settings
 let g:airline#extensions#tabline#enabled = 1
 " source ~/.vim/statusline.vim
 
-" Plugin 'lookupfile' seetings:
+" Plugin 'lookupfile' settings:
 " Lookup loaded files (buffers) using |bufname()|.
 nnoremap ,z :LUBufs <CR>
 
-" Plugin 'Wombat' seetings:
+" Plugin 'Wombat' settings:
 colorscheme wombat
 
 
@@ -158,6 +160,8 @@ set t_Co=256
 "==============================================================================
 
 if has('gui_running')
+  source $VIMRUNTIME/mswin.vim
+
   set guioptions-=m  " Remove menu bar.
   set guioptions-=T  " Remove toolbar.
   set guioptions-=r  " Remove right-hand scroll bar.
@@ -167,7 +171,7 @@ if has('gui_running')
   " Set font
   if has('unix')
     if has('mac')  " OS X
-      set guifont=Monaco:h10
+      set guifont=Monaco:h12
     else
       set guifont=Monaco\ 10
     endif
@@ -175,6 +179,7 @@ if has('gui_running')
   elseif has('win32') || has('win64')
     set guifont=Consolas:h11:cDEFAULT
     autocmd GUIEnter * simalt ~x  " Fullscreen.
+    map <F11> :call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
   endif
 
   " set background=light

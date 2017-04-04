@@ -40,7 +40,7 @@ function setup_vim() {
   fi
 
   echo "Installing Vim plugins ..."
-  vim -u NONE +PluginInstall +qall
+  vim +PluginInstall +qall
 }
 
 setup_bash
