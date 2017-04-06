@@ -64,6 +64,7 @@ let g:syntastic_check_on_wq = 0
 
 " Plugin 'vim-airline/vim-airline' settings
 let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
 " source ~/.vim/statusline.vim
 
 " Plugin 'lookupfile' settings:
