@@ -22,22 +22,34 @@ function copy() {
   fi
 }
 
-function setup_powerline() {
+function install() {
+  if [[ "$OSTYPE" == "linux"* ]]; then
+    sudo apt-get install $1
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    brew install $1
+  else
+    echo "Please install $1 ..."
+    read -p "Press any key to continue if you installed the $1."
+  fi
+}
+
+function install_powerline() {
   echo "Setting up powerline ..."
 
   if [[ "$OSTYPE" == "linux"* ]]; then
-    sudo apt-get install python-pip git
+    sudo apt-get install python-pip
     pip install --user powerline-status
 
+    local font_dir="$HOME/.fonts/"
     wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf
-    mkdir -p ~/.fonts/ && mv PowerlineSymbols.otf ~/.fonts/
-    fc-cache -vf ~/.fonts
+    mkdir -p $font_dir && mv PowerlineSymbols.otf $font_dir
+    fc-cache -vf $font_dir
 
+    local font_config_dir="$HOME/.config/fontconfig/conf.d/";
     wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf
-    mkdir -p ~/.fonts.conf.d/ && mv 10-powerline-symbols.conf ~/.fonts.conf.d/
+    mkdir -p $font_config_dir && mv 10-powerline-symbols.conf $font_config_dir
   elif [[ "$OSTYPE" == "darwin"* ]]; then
-    sudo port select python python27-apple
-    brew install python
+    sudo easy_install pip
     pip install --user powerline-status
   else
     echo "Please go to https://powerline.readthedocs.io/en/latest/installation.html# and install the powerline."
@@ -47,8 +59,34 @@ function setup_powerline() {
   # Install powerline fonts.
   git clone https://github.com/powerline/fonts.git /tmp/fonts
   cd /tmp/fonts
-  sh ./install.sh
+  bash ./install.sh
   cd -
+  rm -rf /tmp/fonts
+}
+
+function install_monaco_font() {
+  local font_dir="/usr/share/fonts/truetype/ttf_monaco/"
+  if [ ! -f $font_dir/Monaco_Linux.ttf ]; then
+    echo "Setting up monaco font ..."
+    sudo mkdir -p $font_dir
+    wget http://codybonney.com/files/fonts/Monaco_Linux.ttf
+    sudo mv Monaco_Linux.ttf $font_dir
+    sudo fc-cache -vf $font_dir
+  fi
+}
+
+function init() {
+  hash git 2> /dev/null ||  install git
+  hash tmux 2> /dev/null || install tmux
+  hash vim 2> /dev/null || install vim
+
+  hash powerline 2> /dev/null || install_powerline
+
+  # Install monaco font for linux.
+  [[ "$OSTYPE" == "linux"* ]] && install_monaco_font
+
+  # Trash path.
+  mkdir -p ~/.local/share/Trash/files
 }
 
 function setup_bash() {
@@ -63,7 +101,7 @@ function setup_bash() {
   copy $PWD/bash/.bashrc $HOME/.bashrc
   copy $PWD/bash/.bash_logout $HOME/.bash_logout
 
-  source $HOME/.bashrc
+  bash $HOME/.bashrc
 }
 
 function setup_screen() {
@@ -99,7 +137,7 @@ function setup_vim() {
   vim +PluginInstall +qall
 }
 
-setup_powerline
+init
 setup_bash
 setup_screen
 setup_tmux

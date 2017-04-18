@@ -49,6 +49,7 @@ Plugin 'google/vim-selector'
 
 " All of your Plugins must be added before the following line.
 call vundle#end()          " Required.
+call glaive#Install()      " Required.
 filetype plugin indent on  " Required.
 
 
@@ -62,10 +63,18 @@ let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
-" Plugin 'vim-airline/vim-airline' settings
+" Plugin 'scrooloose/nerdtree' settings:
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+" Plugin 'vim-airline/vim-airline' settings:
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
 " source ~/.vim/statusline.vim
+
+" Plugin 'valloric/youcompleteme' settings:
+let g:ycm_autoclose_preview_window_after_completion = 1
+let g:ycm_autoclose_preview_window_after_insertion = 1
 
 " Plugin 'lookupfile' settings:
 " Lookup loaded files (buffers) using |bufname()|.
@@ -73,6 +82,11 @@ nnoremap ,z :LUBufs <CR>
 
 " Plugin 'Wombat' settings:
 colorscheme wombat
+
+" Plugin 'google/vim-codefmt' settings:
+Glaive codefmt clang_format_style='google'
+map <C-K> :FormatLines<CR>
+imap <C-K> <ESC>:FormatLines<CR>i
 
 
 "==============================================================================
@@ -139,7 +153,7 @@ set expandtab
 " To change a file encoding type permanently, use command :set fenc=utf-8.
 set encoding=utf-8
 set fencs=utf-8,gbk,ucs-bom,gb18030,gb2312,cp936
-set ambiwidth=double
+" set ambiwidth=double
 
 " Avoid ^M line break.
 set fileformats=unix,mac,dos
@@ -172,9 +186,9 @@ if has('gui_running')
   " Set font
   if has('unix')
     if has('mac')  " OS X
-      set guifont=Monaco:h12
+      set guifont=Monaco:h11
     else
-      set guifont=Monaco\ 10
+      set guifont=Monaco\ 11
     endif
     set lines=999 columns=999  " Maximize gvim window.
   elseif has('win32') || has('win64')
