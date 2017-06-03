@@ -18,7 +18,7 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
 Plugin 'vim-syntastic/syntastic'
 Plugin 'tpope/vim-surround'
-Plugin 'kien/ctrlp.vim'
+Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
@@ -35,8 +35,8 @@ Plugin 'L9'        " Required for most plugins from vim-scripts.
 Plugin 'genutils'  " Required for most plugins from vim-scripts.
 Plugin 'FuzzyFinder'
 Plugin 'lookupfile'
-Plugin 'winmanager'
-Plugin 'taglist.vim'
+" Plugin 'winmanager'
+" Plugin 'taglist.vim'
 Plugin 'Wombat'
 
 " Plugins from google.
@@ -62,19 +62,70 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+let g:syntastic_error_symbol = "✘"
+let g:syntastic_warning_symbol = "▲"
 
 " Plugin 'scrooloose/nerdtree' settings:
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+autocmd bufenter *
+      \ if (winnr("$") == 1 && exists("b:NERDTreeType") &&
+      \     b:NERDTreeType == "primary") |
+      \   q |
+      \ endif
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
+let g:NERDTreeWinSize = 30
+nnoremap <silent> ,t :TagbarClose<CR> :NERDTreeToggle<Enter>
+
+" Plugin 'ctrlpvim/ctrlp.vim' setttings:
+let g:ctrlp_extensions = ['tag']
 
 " Plugin 'vim-airline/vim-airline' settings:
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
-" source ~/.vim/statusline.vim
+
+" Plugin 'majutsushi/tagbar' settings:
+let g:tagbar_left = 1
+let g:tagbar_width = 30
+nnoremap <silent> ,b :NERDTreeClose<CR> :TagbarToggle<CR>
+
+" This tests to see if vim was configured with the '--enable-cscope' option
+" when it was compiled.  If it wasn't, time to recompile vim...
+if has("cscope")
+  """"""""""""" Standard cscope/vim boilerplate
+
+  " use both cscope and ctag for 'ctrl-]', ':ta', and 'vim -t'
+  set cscopetag
+
+  " check cscope for definition of a symbol before checking ctags: set to 1
+  " if you want the reverse search order.
+  set csto=0
+
+  " add any cscope database in current directory
+  if filereadable("cscope.out")
+    cs add cscope.out
+    " else add the database pointed to by environment variable
+  elseif $CSCOPE_DB != ""
+    cs add $CSCOPE_DB
+  endif
+
+  " show msg when any other cscope db added
+  set cscopeverbose
+
+  nmap ,css :cs find s <C-R>=expand("<cword>")<CR><CR>
+  nmap ,csc :cs find c <C-R>=expand("<cword>")<CR><CR>
+
+endif
 
 " Plugin 'valloric/youcompleteme' settings:
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_autoclose_preview_window_after_insertion = 1
+function! s:CustomizeYcmQuickFixWindow()
+  wincmd K   " Move the window to the top of the screen.
+  5wincmd _  " Set the window height to 5.
+endfunction
+autocmd User YcmQuickFixOpened call s:CustomizeYcmQuickFixWindow()
 
 " Plugin 'lookupfile' settings:
 " Lookup loaded files (buffers) using |bufname()|.
@@ -184,6 +235,7 @@ if has('gui_running')
   set guioptions-=b  " Remove bottom scroll bar.
 
   " Set font
+  let g:airline_powerline_fonts = 0
   if has('unix')
     if has('mac')  " OS X
       set guifont=Monaco:h11
