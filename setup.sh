@@ -6,6 +6,8 @@
 # Exit on any errors
 set -e
 
+SUDO="sudo"
+
 function copy() {
   if [ ! -f $from ]; then
     echo "Can not find file: $from."
@@ -15,30 +17,43 @@ function copy() {
   local from=$1
   local to=$2
   if [ -f $to ]; then
-    diff $from $to > /dev/null || vimdiff $from $to
-  else
-    echo "Copy file from \"$from\" to \"$to\""
-    cp $from $to
+    mkdir -p backup
+    mv $to backup
   fi
+  echo "Copy file from \"$from\" to \"$to\""
+  ln -s $from $to
 }
 
 function install() {
+  app=$1
+  echo "Installing $app"
   if [[ "$OSTYPE" == "linux"* ]]; then
-    sudo apt-get install $1
+    if [[ "$app" == "pip3" ]]; then
+      app=python3-pip
+    fi
+    if [[ "$app" == "vim" ]]; then
+      ${SUDO} apt install -y --no-install-recommends software-properties-common
+      ${SUDO} add-apt-repository ppa:jonathonf/vim
+    fi
+    ${SUDO} apt install -y --no-install-recommends $app
   elif [[ "$OSTYPE" == "darwin"* ]]; then
-    brew install $1
+    if [[ "$app" == "pip3" ]]; then
+      app=python3
+    fi
+    brew install $app
   else
-    echo "Please install $1 ..."
-    read -p "Press any key to continue if you installed the $1."
+    echo "Please install $app ..."
+    read -p "Press any key to continue if you installed the $app."
   fi
 }
 
 function install_powerline() {
-  echo "Setting up powerline ..."
-
+  hash pip3 2> /dev/null ||  install pip3
   if [[ "$OSTYPE" == "linux"* ]]; then
-    sudo apt-get install python-pip
-    pip install --user powerline-status
+    pip3 install --user setuptools wheel
+    pip3 install --user powerline-status
+
+    hash fc-cache 2> /dev/null ||  install fontconfig
 
     local font_dir="$HOME/.fonts/"
     wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf
@@ -49,8 +64,8 @@ function install_powerline() {
     wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf
     mkdir -p $font_config_dir && mv 10-powerline-symbols.conf $font_config_dir
   elif [[ "$OSTYPE" == "darwin"* ]]; then
-    sudo easy_install pip
-    pip install --user powerline-status
+    pip3 install --user setuptools wheel
+    pip3 install --user powerline-status
   else
     echo "Please go to https://powerline.readthedocs.io/en/latest/installation.html# and install the powerline."
     read -p "Press any key to continue if you installed the powerline."
@@ -68,29 +83,41 @@ function install_monaco_font() {
   local font_dir="/usr/share/fonts/truetype/ttf_monaco/"
   if [ ! -f $font_dir/Monaco_Linux.ttf ]; then
     echo "Setting up monaco font ..."
-    sudo mkdir -p $font_dir
+
+    hash fc-cache 2> /dev/null ||  install fontconfig
+
+    ${SUDO} mkdir -p $font_dir
     wget http://codybonney.com/files/fonts/Monaco_Linux.ttf
-    sudo mv Monaco_Linux.ttf $font_dir
-    sudo fc-cache -vf $font_dir
+    ${SUDO} mv Monaco_Linux.ttf $font_dir
+    ${SUDO} fc-cache -vf $font_dir
   fi
 }
 
 function init() {
-  hash git 2> /dev/null ||  install git
-  hash tmux 2> /dev/null || install tmux
-  hash vim 2> /dev/null || install vim
+  ${SUDO} apt update
 
-  hash powerline 2> /dev/null || install_powerline
+  hash wget 2> /dev/null ||  install wget
+  hash git 2> /dev/null ||  install git
+}
+
+function setup_fonts() {
+  echo "Setting up fonts ..."
 
   # Install monaco font for linux.
   [[ "$OSTYPE" == "linux"* ]] && install_monaco_font
+}
 
-  # Trash path.
-  mkdir -p ~/.local/share/Trash/files
+function setup_powerline() {
+  echo "Setting up powerline ..."
+
+  hash powerline 2> /dev/null || install_powerline
 }
 
 function setup_bash() {
   echo "Setting up bash configuration ..."
+
+  # Setup Trash path.
+  mkdir -p ~/.local/share/Trash/files
 
   mkdir -p $HOME/.bash/
   copy $PWD/bash/.bash/bash_environment $HOME/.bash/bash_environment
@@ -101,6 +128,7 @@ function setup_bash() {
   copy $PWD/bash/.bashrc $HOME/.bashrc
   copy $PWD/bash/.bash_logout $HOME/.bash_logout
 
+  # Reload .bashrc
   bash $HOME/.bashrc
 }
 
@@ -116,11 +144,15 @@ function setup_screen() {
 function setup_tmux() {
   echo "Setting up tmux configuration ..."
 
+  hash tmux 2> /dev/null || install tmux
+
   copy $PWD/tmux/.tmux.conf $HOME/.tmux.conf
 }
 
 function setup_vim() {
   echo "Setting up Vim configuration ..."
+
+  hash vim 2> /dev/null || install vim
 
   mkdir -p $HOME/.vim/
 
@@ -138,6 +170,8 @@ function setup_vim() {
 }
 
 init
+setup_fonts
+setup_powerline
 setup_bash
 setup_screen
 setup_tmux

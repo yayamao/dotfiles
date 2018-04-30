@@ -85,17 +85,17 @@ bind '"\e[B": history-search-forward'
 export EDITOR=vim
 
 # Set python user base/site location.
-export PY_USER_BASE=`python -m site --user-base`
-export PY_USER_SITE=`python -m site --user-site`
+export PY_USER_BASE=`python3 -m site --user-base`
+export PY_USER_SITE=`python3 -m site --user-site`
 
 # Enable python user bin path.
-PATH="$PY_USER_BASE/bin:$PATH"
+PATH=$PATH:$PY_USER_BASE/bin
 
 # Enable powerline.
 if [ -f $PY_USER_SITE/powerline/bindings/bash/powerline.sh ]; then
-  powerline-daemon -q
-  POWERLINE_BASH_CONTINUATION=1
-  POWERLINE_BASH_SELECT=1
+  python3 $PY_USER_BASE/bin/powerline-daemon -q
+  export POWERLINE_BASH_CONTINUATION=1
+  export POWERLINE_BASH_SELECT=1
   source $PY_USER_SITE/powerline/bindings/bash/powerline.sh
 fi
 

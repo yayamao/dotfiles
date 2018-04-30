@@ -16,6 +16,7 @@ Plugin 'VundleVim/Vundle.vim'  " Required.
 " Plugins from github (http://vimawesome.com).
 Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'vim-syntastic/syntastic'
 Plugin 'tpope/vim-surround'
 Plugin 'ctrlpvim/ctrlp.vim'
@@ -42,10 +43,10 @@ Plugin 'Wombat'
 " Plugins from google.
 Plugin 'google/vim-maktaba'
 Plugin 'google/vim-glaive'
-Plugin 'bazelbuild/vim-bazel'
 Plugin 'google/vim-codefmt'
 Plugin 'google/vim-coverage'
 Plugin 'google/vim-selector'
+Plugin 'bazelbuild/vim-bazel'
 
 " All of your Plugins must be added before the following line.
 call vundle#end()          " Required.
@@ -77,6 +78,7 @@ let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
 let g:NERDTreeWinSize = 30
 nnoremap <silent> ,t :TagbarClose<CR> :NERDTreeToggle<Enter>
+" nnoremap <silent> ,tf :NERDTreeFind<CR>
 
 " Plugin 'ctrlpvim/ctrlp.vim' setttings:
 let g:ctrlp_extensions = ['tag']
@@ -121,6 +123,8 @@ endif
 " Plugin 'valloric/youcompleteme' settings:
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_autoclose_preview_window_after_insertion = 1
+let g:ycm_always_populate_location_list = 1
+nmap ,cs :YcmCompleter GoTo<CR>
 function! s:CustomizeYcmQuickFixWindow()
   wincmd K   " Move the window to the top of the screen.
   5wincmd _  " Set the window height to 5.
@@ -135,7 +139,6 @@ nnoremap ,z :LUBufs <CR>
 colorscheme wombat
 
 " Plugin 'google/vim-codefmt' settings:
-Glaive codefmt clang_format_style='google'
 map <C-K> :FormatLines<CR>
 imap <C-K> <ESC>:FormatLines<CR>i
 
@@ -241,6 +244,7 @@ if has('gui_running')
       set guifont=Monaco:h11
     else
       set guifont=Monaco\ 11
+      " set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11
     endif
     set lines=999 columns=999  " Maximize gvim window.
   elseif has('win32') || has('win64')
