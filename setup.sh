@@ -156,7 +156,6 @@ function setup_vim() {
 
   mkdir -p $HOME/.vim/
 
-  copy $PWD/vim/.vim/statusline.vim $HOME/.vim/statusline.vim
   copy $PWD/vim/.vim/vimrc $HOME/.vim/vimrc
 
   echo "Installing Vundle.Vim ..."
