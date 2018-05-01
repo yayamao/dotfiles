@@ -1,13 +1,13 @@
-greenhouse
+dotfiles
 ==========
 
 Turn you computer to a programmer friendly envioroment.
 
 Setup
 -----
-greenhouse has a simple setup script, to setup:
+dotfiles has a simple setup script, to setup:
 ```console
-git clone https://github.com/yayamao/greenhouse.git ${HOME}/.dotfiles
+git clone https://github.com/yayamao/dotfiles.git ${HOME}/.dotfiles
 cd ${HOME}/.dotfiles
 ./setup.sh
 ```
