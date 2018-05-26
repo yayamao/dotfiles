@@ -85,7 +85,7 @@ let g:ctrlp_extensions = ['tag']
 
 " Plugin 'vim-airline/vim-airline' settings:
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_powerline_fonts = 1
+let g:airline_powerline_fonts = 0
 
 " Plugin 'majutsushi/tagbar' settings:
 let g:tagbar_left = 1
@@ -213,7 +213,7 @@ set fencs=utf-8,gbk,ucs-bom,gb18030,gb2312,cp936
 set fileformats=unix,mac,dos
 
 " Code column limit settings.
-set cc=80
+set cc=100
 hi ColorColumn ctermbg=red
 
 " Set working directory to the current file.

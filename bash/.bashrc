@@ -22,3 +22,8 @@ if [ -f ~/.bash/bash_aliases ]; then
   . ~/.bash/bash_aliases
 fi
 
+# Load personal specifics.
+if [ -f ~/.bash/bash_personal ]; then
+  . ~/.bash/bash_personal
+fi
+

@@ -2,11 +2,12 @@
 
 # Echoes all commands before executing.
 # set -o verbose
+# set -x
 
 # Exit on any errors
 set -e
 
-SUDO="sudo"
+readonly SCRIPT_DIR=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
 
 function copy() {
   if [ ! -f $from ]; then
@@ -17,61 +18,62 @@ function copy() {
   local from=$1
   local to=$2
   if [ -f $to ]; then
-    mkdir -p backup
-    mv $to backup
+    mkdir -p ${SCRIPT_DIR}/backup
+    mv $to ${SCRIPT_DIR}/backup
   fi
   echo "Copy file from \"$from\" to \"$to\""
   ln -s $from $to
 }
 
 function install() {
+  if [[ $EUID > 0 ]]; then
+    SUDO="sudo -H"
+  fi
+
   app=$1
+  if [[ "$app" == "pip3" ]]; then
+    wget -q https://bootstrap.pypa.io/get-pip.py -O /tmp/get-pip.py
+    ${SUDO} python3 /tmp/get-pip.py
+    rm /tmp/get-pip.py
+    return 0
+  fi
+
   echo "Installing $app"
   if [[ "$OSTYPE" == "linux"* ]]; then
-    if [[ "$app" == "pip3" ]]; then
-      app=python3-pip
-    fi
     if [[ "$app" == "vim" ]]; then
-      ${SUDO} apt install -y --no-install-recommends software-properties-common
+      ${SUDO} apt-get install -y --no-install-recommends software-properties-common
       ${SUDO} add-apt-repository ppa:jonathonf/vim
+      ${SUDO} apt-get update
     fi
-    ${SUDO} apt install -y --no-install-recommends $app
+    ${SUDO} apt-get install -y --no-install-recommends $app
   elif [[ "$OSTYPE" == "darwin"* ]]; then
-    if [[ "$app" == "pip3" ]]; then
-      app=python3
-    fi
     brew install $app
   else
     echo "Please install $app ..."
     read -p "Press any key to continue if you installed the $app."
+    return 1
   fi
+
+  return 0
 }
 
-function install_powerline() {
-  hash pip3 2> /dev/null ||  install pip3
+function install_powerline_fonts() {
   if [[ "$OSTYPE" == "linux"* ]]; then
-    pip3 install --user setuptools wheel
-    pip3 install --user powerline-status
+    local font_dir="$HOME/.local/share/fonts/"
+    if [ ! -f $font_dir/PowerlineSymbols.otf ]; then
+      hash fc-cache 2> /dev/null ||  install fontconfig
 
-    hash fc-cache 2> /dev/null ||  install fontconfig
+      wget -q https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf -O /tmp/PowerlineSymbols.otf
+      mkdir -p $font_dir && mv /tmp/PowerlineSymbols.otf $font_dir
+      fc-cache -vf $font_dir
 
-    local font_dir="$HOME/.fonts/"
-    wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf
-    mkdir -p $font_dir && mv PowerlineSymbols.otf $font_dir
-    fc-cache -vf $font_dir
-
-    local font_config_dir="$HOME/.config/fontconfig/conf.d/";
-    wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf
-    mkdir -p $font_config_dir && mv 10-powerline-symbols.conf $font_config_dir
-  elif [[ "$OSTYPE" == "darwin"* ]]; then
-    pip3 install --user setuptools wheel
-    pip3 install --user powerline-status
-  else
-    echo "Please go to https://powerline.readthedocs.io/en/latest/installation.html# and install the powerline."
-    read -p "Press any key to continue if you installed the powerline."
+      local font_config_dir="$HOME/.config/fontconfig/conf.d/"
+      wget -q https://github.com/powerline/powerline/raw/develop/font/10-powerline-symbols.conf -O /tmp/10-powerline-symbols.conf
+      mkdir -p $font_config_dir && mv /tmp/10-powerline-symbols.conf $font_config_dir
+    fi
   fi
 
-  # Install powerline fonts.
+  # Install patched powerline fonts.
   git clone https://github.com/powerline/fonts.git /tmp/fonts
   cd /tmp/fonts
   bash ./install.sh
@@ -80,37 +82,38 @@ function install_powerline() {
 }
 
 function install_monaco_font() {
-  local font_dir="/usr/share/fonts/truetype/ttf_monaco/"
-  if [ ! -f $font_dir/Monaco_Linux.ttf ]; then
-    echo "Setting up monaco font ..."
+  if [[ "$OSTYPE" == "linux"* ]]; then
+    local font_dir="$HOME/.local/share/fonts/"
+    if [ ! -f $font_dir/Monaco_Linux.ttf ]; then
+      hash fc-cache 2> /dev/null ||  install fontconfig
 
-    hash fc-cache 2> /dev/null ||  install fontconfig
-
-    ${SUDO} mkdir -p $font_dir
-    wget http://codybonney.com/files/fonts/Monaco_Linux.ttf
-    ${SUDO} mv Monaco_Linux.ttf $font_dir
-    ${SUDO} fc-cache -vf $font_dir
+      wget -q http://codybonney.com/files/fonts/Monaco_Linux.ttf -O /tmp/Monaco_Linux.ttf
+      mkdir -p $font_dir && mv /tmp/Monaco_Linux.ttf $font_dir
+      fc-cache -vf $font_dir
+    fi
   fi
 }
 
 function init() {
-  ${SUDO} apt update
-
   hash wget 2> /dev/null ||  install wget
   hash git 2> /dev/null ||  install git
-}
+  hash python3 2> /dev/null ||  install python3
 
-function setup_fonts() {
-  echo "Setting up fonts ..."
-
-  # Install monaco font for linux.
-  [[ "$OSTYPE" == "linux"* ]] && install_monaco_font
+  if [[ "$INSTALL_FONTS" == "true"  ]]; then
+    install_monaco_font
+  fi
 }
 
 function setup_powerline() {
   echo "Setting up powerline ..."
 
-  hash powerline 2> /dev/null || install_powerline
+  hash pip3 2> /dev/null ||  install pip3
+  pip3 install --user setuptools wheel
+  pip3 install --user powerline-status
+
+  if [[ "$INSTALL_FONTS" == "true"  ]]; then
+    install_powerline_fonts
+  fi
 }
 
 function setup_bash() {
@@ -120,25 +123,22 @@ function setup_bash() {
   mkdir -p ~/.local/share/Trash/files
 
   mkdir -p $HOME/.bash/
-  copy $PWD/bash/.bash/bash_environment $HOME/.bash/bash_environment
-  copy $PWD/bash/.bash/bash_functions $HOME/.bash/bash_functions
-  copy $PWD/bash/.bash/bash_aliases $HOME/.bash/bash_aliases
+  copy $SCRIPT_DIR/bash/.bash/bash_environment $HOME/.bash/bash_environment
+  copy $SCRIPT_DIR/bash/.bash/bash_functions $HOME/.bash/bash_functions
+  copy $SCRIPT_DIR/bash/.bash/bash_aliases $HOME/.bash/bash_aliases
 
-  copy $PWD/bash/.bash_profile $HOME/.bash_profile
-  copy $PWD/bash/.bashrc $HOME/.bashrc
-  copy $PWD/bash/.bash_logout $HOME/.bash_logout
-
-  # Reload .bashrc
-  bash $HOME/.bashrc
+  copy $SCRIPT_DIR/bash/.bash_profile $HOME/.bash_profile
+  copy $SCRIPT_DIR/bash/.bashrc $HOME/.bashrc
+  copy $SCRIPT_DIR/bash/.bash_logout $HOME/.bash_logout
 }
 
 function setup_screen() {
   echo "Setting up screen configuration ..."
 
   mkdir -p $HOME/.screen/
-  copy $PWD/screen/.screen/resource_stat.sh $HOME/.screen/resource_stat.sh
+  copy $SCRIPT_DIR/screen/.screen/resource_stat.sh $HOME/.screen/resource_stat.sh
 
-  copy $PWD/screen/.screenrc $HOME/.screenrc
+  copy $SCRIPT_DIR/screen/.screenrc $HOME/.screenrc
 }
 
 function setup_tmux() {
@@ -146,17 +146,20 @@ function setup_tmux() {
 
   hash tmux 2> /dev/null || install tmux
 
-  copy $PWD/tmux/.tmux.conf $HOME/.tmux.conf
+  copy $SCRIPT_DIR/tmux/.tmux.conf $HOME/.tmux.conf
 }
 
 function setup_vim() {
   echo "Setting up Vim configuration ..."
 
-  hash vim 2> /dev/null || install vim
+  [[ -d /usr/share/vim/vim81 ]] || install vim
 
   mkdir -p $HOME/.vim/
 
-  copy $PWD/vim/.vim/vimrc $HOME/.vim/vimrc
+  copy $SCRIPT_DIR/vim/.vim/vimrc $HOME/.vim/vimrc
+  if [[ "$INSTALL_FONTS" == "true"  ]]; then
+    sed -i 's|^let g:airline_powerline_fonts = 0|let g:airline_powerline_fonts = 1|' $HOME/.vim/vimrc
+  fi
 
   echo "Installing Vundle.Vim ..."
   if [ ! -d $HOME/.vim/bundle/Vundle.vim ]; then
@@ -168,8 +171,9 @@ function setup_vim() {
   vim +PluginInstall +qall
 }
 
+INSTALL_FONTS=${INSTALL_FONTS-false}
+
 init
-setup_fonts
 setup_powerline
 setup_bash
 setup_screen

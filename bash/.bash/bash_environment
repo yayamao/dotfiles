@@ -87,9 +87,12 @@ export EDITOR=vim
 # Set python user base/site location.
 export PY_USER_BASE=`python3 -m site --user-base`
 export PY_USER_SITE=`python3 -m site --user-site`
+export PYTHONPATH=$PYTHONPATH:$PY_USER_SITE
+export PATH=$PATH:$PY_USER_BASE/bin
 
-# Enable python user bin path.
-PATH=$PATH:$PY_USER_BASE/bin
+# Set go user path.
+export GOPATH=$HOME/go
+export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
 # Enable powerline.
 if [ -f $PY_USER_SITE/powerline/bindings/bash/powerline.sh ]; then
