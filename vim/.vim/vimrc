@@ -30,6 +30,8 @@ Plugin 'valloric/youcompleteme'
 Plugin 'Lokaltog/vim-easymotion'
 Plugin 'godlygeek/tabular'
 Plugin 'ervandew/supertab'
+Plugin 'lervag/vimtex'
+Plugin 'plasticboy/vim-markdown'
 
 " Plugins from vim-scripts (http://vim-scripts.org/vim/scripts.html).
 Plugin 'L9'        " Required for most plugins from vim-scripts.
@@ -65,6 +67,10 @@ let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 let g:syntastic_error_symbol = "✘"
 let g:syntastic_warning_symbol = "▲"
+let g:syntastic_c_compiler = 'clang'
+let g:syntastic_cpp_compiler = 'clang++'
+let g:syntastic_cpp_compiler_options = '-std=c++14'
+let g:syntastic_python_checkers = ['pyflakes']
 
 " Plugin 'scrooloose/nerdtree' settings:
 autocmd StdinReadPre * let s:std_in=1
@@ -92,10 +98,13 @@ let g:tagbar_left = 1
 let g:tagbar_width = 30
 nnoremap <silent> ,b :NERDTreeClose<CR> :TagbarToggle<CR>
 
-" This tests to see if vim was configured with the '--enable-cscope' option
-" when it was compiled.  If it wasn't, time to recompile vim...
+" This tests if vim was configured with the '--enable-cscope' option.
+" If it wasn't, time to recompile vim...
 if has("cscope")
   """"""""""""" Standard cscope/vim boilerplate
+
+  " look for tags file everywhere starting from the current directory up to the root.
+  set tags=tags;/
 
   " use both cscope and ctag for 'ctrl-]', ':ta', and 'vim -t'
   set cscopetag
@@ -115,8 +124,19 @@ if has("cscope")
   " show msg when any other cscope db added
   set cscopeverbose
 
-  nmap ,css :cs find s <C-R>=expand("<cword>")<CR><CR>
-  nmap ,csc :cs find c <C-R>=expand("<cword>")<CR><CR>
+  " show results in quickfix window.
+	set cscopequickfix=s-,c-,d-,i-,t-,e-,a-
+
+  " Sorted according `help cs-find`
+  nmap ,css :cs find s <C-R>=expand("<cword>")<CR><CR>  " Find this C symbol.
+  nmap ,csg :cs find g <C-R>=expand("<cword>")<CR><CR>  " Find this definition.
+  nmap ,csd :cs find d <C-R>=expand("<cword>")<CR><CR>  " Find functions called by this function.
+  nmap ,csc :cs find c <C-R>=expand("<cword>")<CR><CR>  " Find functions calling this function.
+  nmap ,cst :cs find t <C-R>=expand("<cword>")<CR><CR>  " Find this text string.
+  nmap ,cse :cs find e <C-R>=expand("<cword>")<CR><CR>  " Find this egrep pattern.
+  nmap ,csf :cs find f <C-R>=expand("<cword>")<CR><CR>  " Find this file.
+  nmap ,csi :cs find i <C-R>=expand("<cword>")<CR><CR>  " Find this files #including this file.
+  nmap ,csa :cs find a <C-R>=expand("<cword>")<CR><CR>  " Find assignments to this symbol.
 
 endif
 
@@ -135,10 +155,14 @@ autocmd User YcmQuickFixOpened call s:CustomizeYcmQuickFixWindow()
 " Lookup loaded files (buffers) using |bufname()|.
 nnoremap ,z :LUBufs <CR>
 
+" Plugin 'lervag/vimtex' settings:
+let g:vimtex_view_method = 'zathura'
+
 " Plugin 'Wombat' settings:
 colorscheme wombat
 
 " Plugin 'google/vim-codefmt' settings:
+Glaive codefmt clang_format_executable="clang-format"
 map <C-K> :FormatLines<CR>
 imap <C-K> <ESC>:FormatLines<CR>i
 

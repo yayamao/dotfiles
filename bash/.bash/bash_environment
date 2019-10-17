@@ -84,21 +84,22 @@ bind '"\e[B": history-search-forward'
 # Set EDITOR to vim.
 export EDITOR=vim
 
-# Set python user base/site location.
-export PY_USER_BASE=`python3 -m site --user-base`
-export PY_USER_SITE=`python3 -m site --user-site`
-export PYTHONPATH=$PYTHONPATH:$PY_USER_SITE
-export PATH=$PATH:$PY_USER_BASE/bin
-
-# Set go user path.
+# Set go bin path.
 export GOPATH=$HOME/go
-export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+[[ ":$PATH:" != *":/usr/local/go/bin:"* ]] && export PATH=$PATH:/usr/local/go/bin
+[[ ":$PATH:" != *":$GOPATH/bin:"* ]] && export PATH=$PATH:$GOPATH/bin
+
+# Set user home local bin path.
+[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH=$PATH:$HOME/.local/bin
+
+# Set python3 user site enviroment.
+export PY_USER_SITE=`python3 -m site --user-site`
 
 # Enable powerline.
 if [ -f $PY_USER_SITE/powerline/bindings/bash/powerline.sh ]; then
+  PY_USER_BASE=`python3 -m site --user-base`
   python3 $PY_USER_BASE/bin/powerline-daemon -q
   export POWERLINE_BASH_CONTINUATION=1
   export POWERLINE_BASH_SELECT=1
   source $PY_USER_SITE/powerline/bindings/bash/powerline.sh
 fi
-
