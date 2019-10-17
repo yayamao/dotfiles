@@ -167,11 +167,14 @@ function setup_vim() {
       $HOME/.vim/bundle/Vundle.vim
   fi
 
-  echo "Installing Vim plugins ..."
-  vim +PluginInstall +qall
+  if [[ "$INSTALL_VIM_PLUGINS" == "true"  ]]; then
+    echo "Installing Vim plugins ..."
+    vim +PluginInstall +qall
+  fi
 }
 
 INSTALL_FONTS=${INSTALL_FONTS-false}
+INSTALL_VIM_PLUGINS=${INSTALL_VIM_PLUGINS-false}
 
 init
 setup_powerline
