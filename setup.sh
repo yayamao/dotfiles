@@ -33,7 +33,7 @@ function install() {
   app=$1
   if [[ "$app" == "pip3" ]]; then
     wget -q https://bootstrap.pypa.io/get-pip.py -O /tmp/get-pip.py
-    ${SUDO} python3 /tmp/get-pip.py
+    python3 /tmp/get-pip.py --user
     rm /tmp/get-pip.py
     return 0
   fi
