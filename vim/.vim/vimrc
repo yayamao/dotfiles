@@ -34,13 +34,13 @@ Plugin 'lervag/vimtex'
 Plugin 'plasticboy/vim-markdown'
 
 " Plugins from vim-scripts (http://vim-scripts.org/vim/scripts.html).
-Plugin 'L9'        " Required for most plugins from vim-scripts.
-Plugin 'genutils'  " Required for most plugins from vim-scripts.
-Plugin 'FuzzyFinder'
-Plugin 'lookupfile'
+" Plugin 'L9'        " Required for most plugins from vim-scripts.
+" Plugin 'genutils'  " Required for most plugins from vim-scripts.
+" Plugin 'FuzzyFinder'
+" Plugin 'lookupfile'
 " Plugin 'winmanager'
 " Plugin 'taglist.vim'
-Plugin 'Wombat'
+" Plugin 'Wombat'
 
 " Plugins from google.
 Plugin 'google/vim-maktaba'
@@ -125,7 +125,7 @@ if has("cscope")
   set cscopeverbose
 
   " show results in quickfix window.
-	set cscopequickfix=s-,c-,d-,i-,t-,e-,a-
+  set cscopequickfix=s-,c-,d-,i-,t-,e-,a-
 
   " Sorted according `help cs-find`
   nmap ,css :cs find s <C-R>=expand("<cword>")<CR><CR>  " Find this C symbol.
@@ -151,15 +151,8 @@ function! s:CustomizeYcmQuickFixWindow()
 endfunction
 autocmd User YcmQuickFixOpened call s:CustomizeYcmQuickFixWindow()
 
-" Plugin 'lookupfile' settings:
-" Lookup loaded files (buffers) using |bufname()|.
-nnoremap ,z :LUBufs <CR>
-
 " Plugin 'lervag/vimtex' settings:
 let g:vimtex_view_method = 'zathura'
-
-" Plugin 'Wombat' settings:
-colorscheme wombat
 
 " Plugin 'google/vim-codefmt' settings:
 Glaive codefmt clang_format_executable="clang-format"
@@ -176,6 +169,9 @@ set nocompatible
 
 " Enable syntax highlighting by default.
 syntax on
+
+" Use 256 colors in console mode if we think the terminal supports it.
+set t_Co=256
 
 " Make Vim jump to the last position when reopening a file.
 au BufReadPost *
@@ -223,6 +219,10 @@ set expandtab
 " set autoindent
 " set smartindent
 
+" Code line length limit settings (Google style).
+set cc=80
+hi ColorColumn ctermbg=red
+
 " Encoding settings.
 " Use UTF-8 as default encoding, also make Vim can automatically recognise other
 " encoding types. This won't change file's encoding type, e.g. Assuming there is
@@ -236,16 +236,12 @@ set fencs=utf-8,gbk,ucs-bom,gb18030,gb2312,cp936
 " Avoid ^M line break.
 set fileformats=unix,mac,dos
 
-" Code column limit settings.
-set cc=100
-hi ColorColumn ctermbg=red
-
 " Set working directory to the current file.
 nnoremap ,cd :cd %:p:h<CR>:pwd<CR>
 " set autochdir
 
-" Use 256 colors in console mode if we think the terminal supports it.
-set t_Co=256
+" Use customized color scheme.
+colorscheme solarized
 
 
 "==============================================================================
@@ -277,8 +273,7 @@ if has('gui_running')
     map <F11> :call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
   endif
 
-  " set background=light
+  set background=light
 else
-  " set background=dark
+  set background=dark
 endif
-
