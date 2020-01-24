@@ -1,6 +1,8 @@
 dotfiles
 ==========
 
+[![CI Status](https://github.com/yayamao/dotfiles/workflows/CI/badge.svg)](https://github.com/yayamao/dotfiles/actions)
+
 Turn you computer to a programmer friendly envioroment.
 
 Setup
