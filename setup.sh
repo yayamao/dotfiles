@@ -15,7 +15,7 @@ readonly SCRIPT_DIR=$(dirname $(realpath ${BASH_SOURCE[0]}))
 echo SCRIPT_DIR: $SCRIPT_DIR
 
 function create_directory() {
-  dir=$1
+  local dir=$1
   if [[ ! -d $dir ]]; then
     echo "Creating directory: $dir"
     mkdir -p $dir
@@ -24,7 +24,7 @@ function create_directory() {
 
 function copy() {
   if [ ! -f $from ]; then
-    echo "Can not find file: $from."
+    echo "Could not find file: $from."
     exit 1
   fi
 
@@ -34,12 +34,12 @@ function copy() {
     create_directory ${SCRIPT_DIR}/backup
     mv $to ${SCRIPT_DIR}/backup
   fi
-  echo "Link file from \"$from\" to \"$to\""
+  echo "Linking file from \"$from\" to \"$to\""
   ln -s $from $to
 }
 
 function install() {
-  app=$1
+  local app=$1
   echo "Installing app $app ..."
 
   if [[ "$app" == "pip3" ]]; then
@@ -71,8 +71,8 @@ function install() {
 }
 
 function install_font() {
-  font=$1
-  font_name=$(basename $font)
+  local font=$1
+  local font_name=$(basename $font)
 
   local font_dir=""
   if [[ "$OSTYPE" == "linux"* ]]; then
@@ -180,7 +180,7 @@ function setup_vim() {
   fi
 }
 
-INSTALL_FONTS=${INSTALL_FONTS-true}
+INSTALL_FONTS=${INSTALL_FONTS-false}
 INSTALL_VIM_PLUGINS=${INSTALL_VIM_PLUGINS-false}
 
 init

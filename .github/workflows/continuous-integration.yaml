@@ -17,4 +17,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Installation
-      run: ./setup.sh
+      run: INSTALL_FONTS=true ./setup.sh
