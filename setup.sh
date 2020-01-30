@@ -162,10 +162,6 @@ function setup_vim() {
 
   create_directory $HOME/.vim/
 
-  if [[ "$INSTALL_FONTS" == "true" ]]; then
-    sed -i.bak 's|^let g:airline_powerline_fonts = 0|let g:airline_powerline_fonts = 1|' $SCRIPT_DIR/vim/.vim/vimrc
-    rm $SCRIPT_DIR/vim/.vim/vimrc.bak
-  fi
   copy $SCRIPT_DIR/vim/.vim/vimrc $HOME/.vim/vimrc
 
   if [ ! -d $HOME/.vim/bundle/Vundle.vim ]; then

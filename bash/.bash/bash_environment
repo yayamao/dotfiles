@@ -15,7 +15,12 @@ export HISTSIZE=100000
 export HISTFILESIZE=200000
 
 # Save and reload the history after each command finishes
-export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+function _bash_history_sync {
+  history -a
+  history -c
+  history -r
+}
+export PROMPT_COMMAND=_bash_history_sync
 
 # Make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
