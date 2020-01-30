@@ -7,8 +7,13 @@ set nocompatible  " Required.
 filetype off      " Required.
 
 " Set the runtime path to include Vundle and initialize.
-set rtp+=~/.vim/bundle/Vundle.vim  " Required.
-call vundle#begin()                " Required.
+if has('gui_running') && has('win32')
+  set rtp+=$HOME/vimfiles/bundle/Vundle.vim   " Required.
+  call vundle#begin('$HOME/vimfiles/bundle')  " Required.
+else
+  set rtp+=~/.vim/bundle/Vundle.vim  " Required.
+  call vundle#begin()                " Required.
+endif
 
 " Let Vundle manage Vundle.
 Plugin 'VundleVim/Vundle.vim'  " Required.
@@ -91,7 +96,7 @@ let g:ctrlp_extensions = ['tag']
 
 " Plugin 'vim-airline/vim-airline' settings:
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_powerline_fonts = 0
+let g:airline_powerline_fonts = 1
 
 " Plugin 'majutsushi/tagbar' settings:
 let g:tagbar_left = 1
@@ -241,17 +246,11 @@ nnoremap ,cd :cd %:p:h<CR>:pwd<CR>
 " set autochdir
 
 " Use customized color scheme.
-if empty(&t_Co) || &t_Co == 256
+if &t_Co == 8
+  echoerr "Only 8 colors detected! Fallback to solarized degraded 256 colors."
   let g:solarized_termcolors=256
-  colorscheme solarized
-elseif &t_Co == 16
-  echo "Only " . &t_Co . " colors detected."
-  let g:solarized_termcolors=16
-  colorscheme solarized
-else
-  echo "Only " . &t_Co . " colors detected! Fallback to default color scheme."
-  colorscheme default
 endif
+colorscheme solarized
 
 
 "==============================================================================
@@ -267,21 +266,21 @@ if has('gui_running')
   set guioptions-=L  " Remove left-hand scroll bar.
   set guioptions-=b  " Remove bottom scroll bar.
 
-  " Set font
-  let g:airline_powerline_fonts = 0
-  if has('unix')
-    if has('mac')  " OS X
-      set guifont=Monaco:h11
-    else
-      set guifont=Monaco\ 11
-      " set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11
-    endif
-    set lines=999 columns=999  " Maximize gvim window.
-  elseif has('win32') || has('win64')
-    set guifont=Consolas:h11:cDEFAULT
-    autocmd GUIEnter * simalt ~x  " Fullscreen.
-    map <F11> :call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
+  " Set font. Make sure to check mac before check unix as mac is a unix system.
+  if has('mac')
+    set guifont=Monaco\ for\ Powerline:h13
+  elseif has('win32')
+    set guifont=Monaco\ for\ Powerline:h11:cANSI
+    set renderoptions=type:directx,renmode:5
+  elseif has('unix')
+    set guifont=Monaco\ for\ Powerline\ 11
+  else
+    echoerr "Unknown GUI version! Fallback to default font."
+    let g:airline_powerline_fonts = 0
   endif
+
+  " Set GUI size as 2x of VT100 terminal size.
+  set columns=160 lines=48
 
   set background=light
 else
